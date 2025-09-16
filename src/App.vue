@@ -1,48 +1,56 @@
 <template>
-  <header>
-    <nav>
-      <RouterLink to="/">首页</RouterLink>
-      <RouterLink to="/about">关于</RouterLink>
-    </nav>
-  </header>
+  <Header />
 
   <main>
     <RouterView />
   </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2023 诗词博客 - 分享美好的文字</p>
+    </div>
+  </footer>
 </template>
 
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import Header from './components/Header.vue'
 </script>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<style>
+/* 全局样式 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-nav {
-  width: 100%;
-  font-size: 16px;
-  text-align: center;
-  padding: 20px 0;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 20px;
+body {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  text-decoration: none;
+  background-color: #f5f7fa;
+  line-height: 1.5;
 }
 
-nav a.router-link-exact-active {
-  color: #42b983;
-  font-weight: bold;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 main {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  min-height: calc(100vh - 120px);
+}
+
+.footer {
+  background-color: #f8f9fa;
+  padding: 20px 0;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
+  margin-top: 40px;
+  color: #6c757d;
+  font-size: 14px;
 }
 </style>

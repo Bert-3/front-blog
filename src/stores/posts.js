@@ -21,7 +21,15 @@ export const usePostsStore = defineStore('posts', {
       try {
         // 这里使用模拟API，实际项目中替换为真实API
         const response = await axios.get('https://jsonplaceholder.typicode.com/posts')
-        this.posts = response.data
+
+        // 为每篇文章添加随机图片和日期
+        this.posts = response.data.map(post => {
+          return {
+            ...post,
+            image: `https://picsum.photos/seed/${post.id}/600/400`,
+            date: new Date(Date.now() - Math.floor(Math.random() * 10000000000))
+          }
+        })
       } catch (error) {
         this.error = error.message || '获取文章失败'
         console.error('获取文章失败:', error)
