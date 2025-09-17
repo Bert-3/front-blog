@@ -43,9 +43,28 @@
         </router-link>
       </nav>
 
-      <div class="user-profile">
-        <router-link to="/profile" class="profile-link">
-          <img src="../assets/avatar.png" alt="用户头像" class="avatar" />
+      <div class="user-area">
+        <!-- 已登录状态显示用户头像 -->
+        <div v-if="authStore.isLoggedIn" class="user-profile">
+          <div class="user-dropdown"
+               @mouseenter="handleMouseEnter"
+               @mouseleave="handleMouseLeave">
+            <img :src="authStore.userAvatar" alt="用户头像" class="avatar" @click="toggleDropdown" />
+            <div class="dropdown-content" v-show="showDropdown" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+              <router-link to="/profile" class="dropdown-item" @click="showDropdown = false">个人中心</router-link>
+              <router-link to="/settings" class="dropdown-item" @click="showDropdown = false">设置</router-link>
+              <!-- 管理员角色显示管理后台入口 -->
+              <router-link v-if="authStore.isAdmin" to="/admin" class="dropdown-item admin-link" @click="showDropdown = false">
+                管理后台
+              </router-link>
+              <a href="#" class="dropdown-item" @click.prevent="handleLogout">退出登录</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 未登录状态显示登录按钮 -->
+        <router-link v-else to="/login" class="login-button">
+          登录
         </router-link>
       </div>
     </div>
@@ -53,7 +72,49 @@
 </template>
 
 <script setup>
-// 无需额外的脚本逻辑
+import { ref } from 'vue'
+import { useAuthStore } from '../stores/auth'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+// 检查是否已登录
+authStore.checkAuth()
+
+// 控制下拉菜单显示
+const showDropdown = ref(false)
+let closeTimer = null
+
+// 鼠标进入头像或下拉菜单
+const handleMouseEnter = () => {
+  // 清除关闭计时器
+  if (closeTimer) {
+    clearTimeout(closeTimer)
+    closeTimer = null
+  }
+  showDropdown.value = true
+}
+
+// 鼠标离开头像或下拉菜单
+const handleMouseLeave = () => {
+  // 设置延迟关闭，给用户足够时间移动到下拉菜单
+  closeTimer = setTimeout(() => {
+    showDropdown.value = false
+  }, 300)
+}
+
+// 点击头像切换下拉菜单显示状态
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  showDropdown.value = false
+  // 退出登录后跳转到首页
+  router.push('/')
+}
 </script>
 
 <style scoped>
@@ -126,11 +187,82 @@
   background-position: center;
 }
 
+.user-area {
+  position: relative;
+}
+
+.login-button {
+  background-color: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.login-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   border: 2px solid white;
+  cursor: pointer;
+}
+
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  z-index: 1;
+  /* 添加过渡效果 */
+  transition: opacity 0.2s, visibility 0.2s;
+  /* 确保下拉菜单与头像之间没有间隙 */
+  padding-top: 0;
+}
+
+/* 创建一个连接区域，确保鼠标可以从头像移动到下拉菜单 */
+.dropdown-content::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-color: transparent;
+}
+
+.dropdown-item {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.admin-link {
+  color: #e74c3c;
+  font-weight: 500;
 }
 
 /* 响应式设计 */
